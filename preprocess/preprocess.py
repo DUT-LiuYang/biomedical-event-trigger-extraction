@@ -56,9 +56,13 @@ class PreProcessor(object):
         root = tree.getroot()
 
         max_len = 0
+        wrong = 0
+        duplicated_tri = {}  # aim at getting attention of triggers with different ids
+        duplicated_tri_ids = {}
+        count_duplicated = 0
+        wf7 = open(output_file + 'duplicated.txt', 'w', encoding='utf-8')
 
         for document in root:
-
             for sentence in document:
                 line = ""   # used for appending tokens.
                 entities = sentence.findall("entity")
@@ -70,11 +74,6 @@ class PreProcessor(object):
 
                 all_train_triggers = []
 
-                wrong = 0
-                duplicated_tri = {}  # aim at getting attention of triggers with different ids
-                duplicated_tri_ids = {}
-                count_duplicated = 0
-                wf7 = open(output_file + 'duplicated.txt', 'w', encoding='utf-8')
                 # =========== entity info============
                 entity_ids = []
                 entity_offsets = []
@@ -237,9 +236,9 @@ class PreProcessor(object):
                           self.list2str(tri_ids) + "#" + self.list2str(entity_offsets) +
                           "#" + self.list2str(entity_ids) + "\n")
 
-        # for key, value in duplicated_tri.items():
-        #     wf7.write(key + "*" + value + "\n")
-        # wf7.close()
+        for key, value in duplicated_tri.items():
+            wf7.write(key + "*" + value + "\n")
+        wf7.close()
 
         wf1.close()
         wf2.close()
