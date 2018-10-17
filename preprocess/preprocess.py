@@ -246,7 +246,8 @@ class PreProcessor(object):
         wf4.close()
         wf5.close()
         wf6.close()
-        wf7.close()
+
+        print("longest sentence has " + str(max_len) + " words.")   # 125
 
     def sort_offset(self, tri_offsets=[], tri_types=[], tri_ids=[]):
         temp = []
@@ -321,8 +322,26 @@ class PreProcessor(object):
                     num += 1
         return label, num
 
+    def write_ids(self):
+
+        wf = open(self.output_dir + "tri_ids.txt", 'w', encoding='utf-8')
+        for key, value in self.trigger_class_ids.items():
+            wf.write(key + "\t" + str(value) + "\n")
+        wf.close()
+
+        wf = open(self.output_dir + "entity_ids.txt", 'w', encoding='utf-8')
+        for key, value in self.entity_class_ids.items():
+            wf.write(key + "\t" + str(value) + "\n")
+        wf.close()
+
 
 if __name__ == '__main__':
     train_file = "MLEE-test-train-preprocessed.xml"
+    test_file = "MLEE-test-test-preprocessed.xml"
+
     p = PreProcessor()
     p.read_file(xml=train_file, train=True)
+    p.read_file(xml=test_file, train=False)
+
+    p.write_ids()
+
