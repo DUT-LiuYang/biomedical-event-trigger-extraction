@@ -75,9 +75,9 @@ class Data2Inputs(object):
 
     def write_word_inputs(self, inputs=[], train=True):
         if train:
-            output_file = self.dir + "train_input"
+            output_file = self.dir + "train_input.txt"
         else:
-            output_file = self.dir + "test_input"
+            output_file = self.dir + "test_input.txt"
 
         wf = open(output_file, 'w', encoding='utf-8')
         for sentence in inputs:
