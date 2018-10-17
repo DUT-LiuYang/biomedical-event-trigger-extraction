@@ -1,5 +1,6 @@
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+import pickle
 
 
 class Data2Inputs(object):
@@ -59,7 +60,7 @@ class Data2Inputs(object):
         train_inputs = tk.texts_to_sequences(train_inputs)
         test_inputs = tk.texts_to_sequences(test_inputs)
         print("finish!")
-        self.write_ids(tk.word_index)
+        self.write_ids(tk.word_index, "word_index.pk")
         self.write_word_inputs(self.pad_inputs(train_inputs))
         self.write_word_inputs(self.pad_inputs(train_inputs), False)
         return train_inputs, test_inputs, tk.word_index
@@ -67,10 +68,9 @@ class Data2Inputs(object):
     def pad_inputs(self, inputs, length=125):
         return pad_sequences(inputs, maxlen=length, padding='post')
 
-    def write_ids(self, word_index={}):
-        wf = open(self.dir + "word_index.txt", 'w', encoding='utf-8')
-        for key, value in word_index.items():
-            wf.write(key + "\t" + str(value) + "\n")
+    def write_ids(self, ids={}, file=""):
+        wf = open(self.dir + file, 'wb')
+        pickle.dump(ids, wf)
         wf.close()
 
     def write_word_inputs(self, inputs=[], train=True):
