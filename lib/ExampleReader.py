@@ -1,30 +1,33 @@
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
+import pickle
 
 
 class ExampleReader(object):
-    def __init__(self, max_len):
+    def __init__(self, max_len, train):
         self.dir = "../example/"
         self.max_len = max_len
+        self.train = train
 
-    def get_data(self, train=True):
-        inputs, labels, entity_labels, deps = self.read_instance_files(train)
+        if train:
+            self.output_file = self.dir + "train_"
+        else:
+            self.output_file = self.dir + "test_"
+
+    def get_data(self):
+        inputs, labels, entity_labels, deps = self.read_instance_files()
         return inputs, labels, entity_labels, deps
 
-    def read_instance_files(self, train=True):
+    def read_instance_files(self):
         """
         read preprocessed data from files.
         here we read token, entity type and dependency clues.
         """
-        if train:
-            output_file = self.dir + "train_"
-        else:
-            output_file = self.dir + "test_"
 
-        rf1 = open(output_file + "input.txt", 'r', encoding='utf-8')
-        rf2 = open(output_file + "label.txt", 'r', encoding='utf-8')
-        rf3 = open(output_file + "entity_type.txt", 'r', encoding='utf-8')
-        rf4 = open(output_file + "dep.txt", 'r', encoding='utf-8')
+        rf1 = open(self.output_file + "input.txt", 'r', encoding='utf-8')
+        rf2 = open(self.output_file + "label.txt", 'r', encoding='utf-8')
+        rf3 = open(self.output_file + "entity_type.txt", 'r', encoding='utf-8')
+        rf4 = open(self.output_file + "dep.txt", 'r', encoding='utf-8')
 
         inputs = []
         labels = []
@@ -54,7 +57,12 @@ class ExampleReader(object):
         rf3.close()
         rf4.close()
 
-        return np.array(inputs), labels, entity_labels, deps
+        inputs = np.array(inputs)
+        wf = open(self.output_file + "input.pk", 'wb')
+        pickle.dump(inputs, wf)
+        wf.close()
+
+        return inputs, labels, entity_labels, deps
 
     def read_ids(self, file):
         rf = open(self.dir + file, 'r', encoding='utf-8')
@@ -96,7 +104,12 @@ class ExampleReader(object):
                     res[i][j].append(0)
                 res[i][j][k] = 1
 
-        return np.array(res)
+        res = np.array(res)
+        wf = open(self.output_file + "labels.pk", 'wb')
+        pickle.dump(res, wf)
+        wf.close()
+
+        return res
 
     def get_entity_input(self, ori_label=[], class_ids={}):
 
