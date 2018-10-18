@@ -125,7 +125,12 @@ class ExampleReader(object):
         k = int(class_ids.get("O"))
         labels = pad_sequences(labels, maxlen=self.max_len, value=k, padding='post')
 
-        return np.array(labels)
+        labels = np.array(labels)
+        wf = open(self.output_file + "entity_inputs.pk", 'wb')
+        pickle.dump(labels, wf)
+        wf.close()
+
+        return labels
 
 
 if __name__ == '__main__':
