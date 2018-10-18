@@ -134,7 +134,7 @@ class ExampleReader(object):
 
 
 if __name__ == '__main__':
-    e = ExampleReader(max_len=125)
+    e = ExampleReader(max_len=125, train=True)
 
     tri_ids_file = "tri_ids.txt"
     tri_class_id, _ = e.read_ids(tri_ids_file)
@@ -143,10 +143,10 @@ if __name__ == '__main__':
     entity_class_ids, _ = e.read_ids(entity_ids_file)
 
     train_inputs, train_labels, train_entity_labels, train_deps = e.get_data()
-    test_inputs, test_labels, test_entity_labels, test_deps = e.get_data(train=False)
-
     train_labels = e.get_label(train_labels, tri_class_id, class_num=73)
-    test_labels = e.get_label(test_labels, tri_class_id, class_num=73)
-
     train_entity_inputs = e.get_entity_input(train_entity_labels, entity_class_ids)
+
+    e = ExampleReader(max_len=125, train=False)
+    test_inputs, test_labels, test_entity_labels, test_deps = e.get_data()
+    test_labels = e.get_label(test_labels, tri_class_id, class_num=73)
     test_entity_inputs = e.get_entity_input(test_entity_labels, entity_class_ids)
