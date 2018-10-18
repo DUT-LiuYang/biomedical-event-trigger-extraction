@@ -3,7 +3,9 @@ import pickle
 
 
 class EmbeddingReader(object):
-
+    """
+    construct embedding matrix and pickle them.
+    """
     def __init__(self):
         self.dir = "../resource/"
         self.WORD_EMBEDDING_DIM = 200
@@ -51,9 +53,31 @@ class EmbeddingReader(object):
         rf = open("../example/" + file, 'rb')
         return pickle.load(rf)
 
+    def load_embedding_file(self, file):
+        rf = open(self.dir + file, 'r', encoding='utf-8')
+        entity_type_matrix = []
+        while True:
+            line = rf.readline()
+            if line == "":
+                break
+            temp = line.strip().split()
+            for i in range(len(temp)):
+                temp[i] = float(temp[i])
+            entity_type_matrix.append(temp)
+        rf.close()
+        entity_type_matrix = np.array(entity_type_matrix)
+
+        wf = open(self.dir + file.split(".")[0] + ".pk", 'wb')
+        pickle.dump(entity_type_matrix, wf)
+        wf.close()
+        return entity_type_matrix
+
 
 if __name__ == '__main__':
     e = EmbeddingReader()
     word_index = e.read_ids("word_index.pk")
 
     e.trim_word_embedding(word_index=word_index)
+
+    entity_embedding_file = "entity_type_matrix.txt"
+    e.load_embedding_file(entity_embedding_file)
