@@ -3,29 +3,37 @@ from sklearn.model_selection import train_test_split
 
 
 class BaseModel:
+
     def __init__(self):
 
-        self.model = None
-        self.max_len = 100
-        self.num_words = 6855
-
-        self.embedding_matrix = None
-        self.embedding_trainable = False
-        self.EMBEDDING_DIM = 200
-
-        self.train_word_inputs, self.train_entity_inputs, self.train_labels = self.load_data(train=True)
-        self.test_word_inputs, self.test_entity_inputs, self.test_labels = self.load_data(train=False)
-        self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels = [None, None, None]
-
-        self.split_train_set(rate=0.2)
-
+        # used dirs
         self.save_dir = "../saved_models/"
         self.dir = "../example/"
         self.embedding_dir = "../resource/embedding_matrix.pk"
         self.entity_embedding_dir = "../resource/entity_type_matrix.pk"
+        self.index_ids_file = "tri_index_ids.pk"
 
+        # some basic parameters of the model
+        self.model = None
+        self.max_len = 100
+        self.num_words = 6855
+        self.entity_type_num = 63
+
+        # pre-trained embeddings and their parameters.
         self.embedding_matrix = BaseModel.load_pickle(self.embedding_dir)
-        self.entity_embedding = BaseModel.load_pickle(self.entity_embedding_dir)
+        self.entity_embedding_matrix = BaseModel.load_pickle(self.entity_embedding_dir)
+        self.embedding_trainable = False
+        self.EMBEDDING_DIM = 200
+        self.ENTITY_TYPE_VEC_DIM = 50
+
+        # inputs to the model
+        self.train_word_inputs, self.train_entity_inputs, self.train_labels = self.load_data(train=True)
+        self.test_word_inputs, self.test_entity_inputs, self.test_labels = self.load_data(train=False)
+        self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels = [None, None, None]
+        self.split_train_set(rate=0.2)
+
+        # dict used to calculate the F1
+        self.index_ids = BaseModel.load_pickle(self.dir + self.index_ids_file)
 
     def build_model(self):
         pass
