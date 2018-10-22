@@ -1,7 +1,8 @@
 import pickle
+from sklearn.model_selection import train_test_split
+
 
 class BaseModel:
-
     def __init__(self):
 
         self.model = None
@@ -12,8 +13,17 @@ class BaseModel:
         self.embedding_trainable = False
         self.EMBEDDING_DIM = 200
 
+        self.train_word_inputs, self.train_entity_inputs, self.train_labels = self.load_data(train=True)
+        self.test_word_inputs, self.test_entity_inputs, self.test_labels = self.load_data(train=False)
+        self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels = [None, None, None]
+
+        self.split_train_set(rate=0.2)
+
         self.save_dir = "../saved_models/"
         self.dir = "../example/"
+        self.embedding_dir = "../resource/embedding_matrix.pk"
+
+        self.embedding_matrix = self.load_embeddings()
 
     def build_model(self):
         pass
@@ -46,3 +56,21 @@ class BaseModel:
         rf.close()
 
         return word_inputs, entity_inputs, labels
+
+    def load_embeddings(self):
+        rf = open(self.embedding_dir, 'rb')
+        embedding_matrix = pickle.load(rf)
+        rf.close()
+        return embedding_matrix
+
+    def split_train_set(self, rate=0.2):
+        self.train_word_inputs, \
+        self.dev_word_inputs, \
+        self.train_entity_inputs, \
+        self.dev_entity_inputs, \
+        self.train_labels, \
+        self.dev_labels = train_test_split(self.train_word_inputs,
+                                           self.train_entity_inputs,
+                                           self.train_labels,
+                                           test_size=rate,
+                                           random_state=0)
