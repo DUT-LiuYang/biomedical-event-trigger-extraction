@@ -137,7 +137,7 @@ if __name__ == '__main__':
     e = ExampleReader(max_len=125, train=True)
 
     tri_ids_file = "tri_ids.txt"
-    tri_class_id, _ = e.read_ids(tri_ids_file)
+    tri_class_id, tri_index_ids = e.read_ids(tri_ids_file)
 
     entity_ids_file = "entity_ids.txt"
     entity_class_ids, _ = e.read_ids(entity_ids_file)
@@ -150,3 +150,7 @@ if __name__ == '__main__':
     test_inputs, test_labels, test_entity_labels, test_deps = e.get_data()
     test_labels = e.get_label(test_labels, tri_class_id, class_num=73)
     test_entity_inputs = e.get_entity_input(test_entity_labels, entity_class_ids)
+
+    wf = open("../example/tri_index_ids.pk", 'wb')
+    pickle.dump(tri_index_ids, wf)
+    wf.close()
