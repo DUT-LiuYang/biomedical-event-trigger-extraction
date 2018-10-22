@@ -22,8 +22,10 @@ class BaseModel:
         self.save_dir = "../saved_models/"
         self.dir = "../example/"
         self.embedding_dir = "../resource/embedding_matrix.pk"
+        self.entity_embedding_dir = "../resource/entity_type_matrix.pk"
 
-        self.embedding_matrix = self.load_embeddings()
+        self.embedding_matrix = BaseModel.load_pickle(self.embedding_dir)
+        self.entity_embedding = BaseModel.load_pickle(self.entity_embedding_dir)
 
     def build_model(self):
         pass
@@ -57,8 +59,9 @@ class BaseModel:
 
         return word_inputs, entity_inputs, labels
 
-    def load_embeddings(self):
-        rf = open(self.embedding_dir, 'rb')
+    @staticmethod
+    def load_pickle(file):
+        rf = open(file, 'rb')
         embedding_matrix = pickle.load(rf)
         rf.close()
         return embedding_matrix
