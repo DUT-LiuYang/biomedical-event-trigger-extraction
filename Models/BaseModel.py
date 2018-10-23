@@ -16,7 +16,7 @@ class BaseModel:
         # some basic parameters of the model
         self.model = None
         self.max_len = 100
-        self.num_words = 6855
+        self.num_words = 6820
         self.entity_type_num = 63
 
         # pre-trained embeddings and their parameters.
@@ -29,8 +29,8 @@ class BaseModel:
         # inputs to the model
         self.train_word_inputs, self.train_entity_inputs, self.train_labels = self.load_data(train=True)
         self.test_word_inputs, self.test_entity_inputs, self.test_labels = self.load_data(train=False)
-        self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels = [None, None, None]
-        self.split_train_set(rate=0.2)
+        # self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels = [None, None, None]
+        # self.split_train_set(rate=0.1)
 
         # dict used to calculate the F1
         self.index_ids = BaseModel.load_pickle(self.dir + self.index_ids_file)
