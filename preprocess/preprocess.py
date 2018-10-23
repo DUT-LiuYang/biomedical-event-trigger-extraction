@@ -26,7 +26,7 @@ class PreProcessor(object):
         self.dep_class_ids = {}
         self.count_dep_class = 0
 
-        self.special_char = ["-", "[", "(", ")", "]", "&gt;", "/"]
+        self.special_char = ["-", "[", "(", ")", "]", "/"]
 
         self.non_find = []
         rf = open(self.dir + "non_find", 'r', encoding='utf-8')
