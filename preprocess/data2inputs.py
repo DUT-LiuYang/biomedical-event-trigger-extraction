@@ -62,7 +62,7 @@ class Data2Inputs(object):
         print("finish!")
         self.write_ids(tk.word_index, "word_index.pk")
         self.write_word_inputs(self.pad_inputs(train_inputs))
-        self.write_word_inputs(self.pad_inputs(train_inputs), False)
+        self.write_word_inputs(self.pad_inputs(test_inputs), False)
         return train_inputs, test_inputs, tk.word_index
 
     def pad_inputs(self, inputs, length=125):
