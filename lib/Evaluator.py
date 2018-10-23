@@ -53,7 +53,9 @@ class Evaluator(object):
 
         return sen_label
 
-    def get_true_prf(self, label, sen_label, epoch=1):
+    def get_true_prf(self, sen_label, epoch=1):
+
+        label = self.true_labels
 
         tri_type = ["Regulation", "Cell_proliferation", "Gene_expression", "Binding",
                     "Positive_regulation", "Transcription", "Dephosphorylation", "Development",
@@ -135,20 +137,20 @@ class Evaluator(object):
         print("r: " + str(r1 * 100))
         print("f: " + str(f1 * 100))
 
-        for i in range(19):
-            if p_p_es[i] == 0:
-                print(str(0))
-                continue
-            if p_es[i] == 0:
-                print(str(0))
-                continue
-            p = float(pr_p_es[i]) / p_p_es[i]
-            r = float(pr_p_es[i]) / p_es[i]
-            if p == 0 and r == 0:
-                print(str(0))
-                continue
-            f = 2 * p * r / (p + r)
-            print(tri_type[i] + " p - " + str(p) + " r - " + str(r) + " f - " + str(f))
+        # for i in range(19):
+        #     if p_p_es[i] == 0:
+        #         print(str(0))
+        #         continue
+        #     if p_es[i] == 0:
+        #         print(str(0))
+        #         continue
+        #     p = float(pr_p_es[i]) / p_p_es[i]
+        #     r = float(pr_p_es[i]) / p_es[i]
+        #     if p == 0 and r == 0:
+        #         print(str(0))
+        #         continue
+        #     f = 2 * p * r / (p + r)
+        #     print(tri_type[i] + " p - " + str(p) + " r - " + str(r) + " f - " + str(f))
 
         if f1 > self.max_F1:
             self.max_F1 = f1
