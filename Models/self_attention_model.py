@@ -53,7 +53,8 @@ class SelfAttentionModel(BaseModel):
 
     def train_model(self, max_epoch=30):
 
-        e = Evaluator(true_labels=self.test_labels, sentences=self.test_word_inputs, index_ids=self.index_ids)
+        e1 = Evaluator(true_labels=self.test_labels, sentences=self.test_word_inputs, index_ids=self.index_ids)
+        e2 = Evaluator(true_labels=self.dev_labels, sentences=self.dev_word_inputs, index_ids=self.index_ids)
 
         for i in range(max_epoch):
             print("====== epoch " + str(i + 1) + " ======")
@@ -62,23 +63,33 @@ class SelfAttentionModel(BaseModel):
                            self.train_labels,
                            epochs=1,
                            batch_size=32,
-                           # validation_data=([self.dev_word_inputs,
-                           #                   self.dev_entity_inputs], self.dev_labels),
+                           validation_data=([self.dev_word_inputs,
+                                             self.dev_entity_inputs], self.dev_labels),
                            verbose=2)
 
+            print("# -- develop set --- #")
+            results = self.model.predict({'sentence_input': self.dev_word_inputs,
+                                          'entity_type_input': self.dev_entity_inputs},
+                                         batch_size=64,
+                                         verbose=0)
+            results = e2.get_true_label(label=results)
+            results = e2.process_bie(sen_label=results)
+            e2.get_true_prf(results, epoch=i + 1)
+
+            print("# -- test set --- #")
             results = self.model.predict({'sentence_input': self.test_word_inputs,
                                           'entity_type_input': self.test_entity_inputs},
                                          batch_size=64,
                                          verbose=0)
 
-            results = e.get_true_label(label=results)
-            results = e.process_bie(sen_label=results)
-            e.get_true_prf(results, epoch=i + 1)
+            results = e1.get_true_label(label=results)
+            results = e1.process_bie(sen_label=results)
+            e1.get_true_prf(results, epoch=i + 1)
 
 
 if __name__ == '__main__':
 
     s = SelfAttentionModel(max_len=125, class_num=73)
-    s.build_model()
-    s.train_model()
-
+    for i in range(5):
+        s.build_model()
+        s.train_model()
