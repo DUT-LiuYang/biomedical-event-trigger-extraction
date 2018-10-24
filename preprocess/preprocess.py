@@ -82,7 +82,7 @@ class PreProcessor(object):
 
                 if entities is not None:
                     for entity in entities:
-                        if entity.get("BANNER") is not None:
+                        if entity.get("origBANNEROffset") is not None:
                             continue
 
                         char_offset = entity.get("charOffset")
