@@ -29,8 +29,8 @@ class BaseModel:
         # inputs to the model
         self.train_word_inputs, self.train_entity_inputs, self.train_labels = self.load_data(train=True)
         self.test_word_inputs, self.test_entity_inputs, self.test_labels = self.load_data(train=False)
-        # self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels = [None, None, None]
-        # self.split_train_set(rate=0.1)
+        self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels = [None, None, None]
+        # self.split_train_set(rate=0.06)
 
         # dict used to calculate the F1
         self.index_ids = BaseModel.load_pickle(self.dir + self.index_ids_file)
@@ -44,8 +44,8 @@ class BaseModel:
     def predict(self):
         pass
 
-    def save_model(self):
-        pass
+    def save_model(self, file=""):
+        self.model.save_weights(self.save_dir + file)
 
     def load_data(self, train=True):
         if train:
