@@ -1,4 +1,7 @@
 import pickle
+
+from keras.engine import Model
+from keras.layers import Embedding, Input
 from sklearn.model_selection import train_test_split
 
 
@@ -34,6 +37,10 @@ class BaseModel:
 
         # dict used to calculate the F1
         self.index_ids = BaseModel.load_pickle(self.dir + self.index_ids_file)
+
+        self.sen_input, self.entity_type_input = None, None
+        self.sen_embedding, self.entity_embedding = None, None
+        self.output = None
 
     def build_model(self):
         pass
@@ -85,3 +92,42 @@ class BaseModel:
                                            self.train_labels,
                                            test_size=rate,
                                            random_state=0)
+
+    def compile_model(self):
+        self.sen_input, self.entity_type_input = self.make_input()
+        self.sen_embedding, self.entity_embedding = self.embedded()
+
+        self.output = self.build_model()
+
+        inputs = [self.sen_input, self.entity_type_input]
+
+        self.model = Model(inputs=inputs, outputs=self.output)
+        self.model.compile(optimizer='adam',
+                           loss='categorical_crossentropy',
+                           metrics=['acc'])
+
+    def make_input(self):
+        sentence = Input(shape=(self.max_len,), dtype='int32', name='sentence_input')
+        entity_type = Input(shape=(self.max_len,), dtype='int32', name='entity_type_input')
+
+        return sentence, entity_type
+
+    def embedded(self):
+
+        sentence_embedding_layer = Embedding(self.num_words + 2,
+                                             self.EMBEDDING_DIM,
+                                             weights=[self.embedding_matrix],
+                                             input_length=self.max_len,
+                                             trainable=False,
+                                             mask_zero=True)
+        sentence_embedding = sentence_embedding_layer(self.sen_input)
+
+        entity_embedding_layer = Embedding(self.entity_type_num + 2,
+                                           self.ENTITY_TYPE_VEC_DIM,
+                                           weights=[self.entity_embedding_matrix],
+                                           input_length=self.max_len,
+                                           trainable=True,
+                                           mask_zero=True)
+        entity_embedding = entity_embedding_layer(self.entity_type_input)
+
+        return [sentence_embedding, entity_embedding]
