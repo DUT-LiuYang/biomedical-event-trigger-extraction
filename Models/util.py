@@ -20,7 +20,7 @@ def soft_attention_alignment(input_1, input_2):
 
     in_aligned = Dot(axes=1)([w_att, input_1])
 
-    return in_aligned
+    return in_aligned, w_att
 
 
 def minus_soft_attention_alignment(input_1, input_2):
