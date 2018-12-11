@@ -233,7 +233,7 @@ class ExampleReader(object):
                             attention_label[i][j].append(score)
 
         wf = open(self.output_file + "attention_label.pk", 'wb')
-        pickle.dump(attention_label, wf)
+        pickle.dump(np.asarray(attention_label, dtype='float32'), wf)
         wf.close()
 
         return attention_label
