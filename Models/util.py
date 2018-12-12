@@ -62,3 +62,18 @@ def apply_multiple(input_, layers):
     return out_
 
 
+def gated_mechanism(inputs, dim):
+    """
+    lambda function for gated_mechanism to fuse the attention weighted and encoded embedding.
+    In the future, I have more advanced gated for this task.
+    :param inputs: inputs[0]
+    :param dim: the dim of the fused vectors.
+    :return: the fused vector.
+    """
+    gate = K.repeat_elements(inputs[0], dim, axis=-1)
+    res = gate * inputs[1] + (1 - gate) * inputs[2]
+    return res
+
+
+def gated_output_shape(input_shape):
+    return input_shape[1]
