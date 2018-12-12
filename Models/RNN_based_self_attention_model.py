@@ -8,7 +8,9 @@ from Models.util import *
 
 
 class SelfAttentionModel(BaseModel):
-
+    """
+    code for bibm 2017 paper.
+    """
     def __init__(self, max_len=100, class_num=73):
 
         super(SelfAttentionModel, self).__init__()
