@@ -1,8 +1,8 @@
 from Models.BaseModel import BaseModel
 from lib.Evaluator import Evaluator
 import keras
-from keras.layers import Input, Embedding, Bidirectional, GRU, TimeDistributed, Dense, Dropout
-from keras.models import Model
+from keras.layers import Bidirectional, GRU, TimeDistributed, Dense, Dropout
+from Models.util import *
 
 
 class SelfAttentionModel(BaseModel):
@@ -15,46 +15,27 @@ class SelfAttentionModel(BaseModel):
         self.class_num = class_num
 
     def build_model(self):
-        sentences = Input(shape=(self.max_len,), dtype='int32', name='sentence_input')
-        entity_types = Input(shape=(self.max_len,), dtype='int32', name='entity_type_input')
+        x = TimeDistributed(Dense(200, activation='tanh'))(self.sen_embedding)
+        self_attention_embedding, _ = soft_attention_alignment(x, x)
 
-        sentence_embedding_layer = Embedding(self.num_words + 2,
-                                             self.EMBEDDING_DIM,
-                                             weights=[self.embedding_matrix],
-                                             input_length=self.max_len,
-                                             trainable=False,
-                                             mask_zero=True)
-        sentence_embedding = sentence_embedding_layer(sentences)
+        inputs = keras.layers.concatenate([self.sen_embedding, self.entity_embedding])
 
-        entity_embedding_layer = Embedding(self.entity_type_num + 2,
-                                           self.ENTITY_TYPE_VEC_DIM,
-                                           weights=[self.entity_embedding_matrix],
-                                           input_length=self.max_len,
-                                           trainable=True,
-                                           mask_zero=True)
-        entity_embedding = entity_embedding_layer(entity_types)
+        encoded_sentence_embedding = Bidirectional(GRU(200,
+                                                       activation="relu",
+                                                       return_sequences=True,
+                                                       dropout=0.3))(inputs)
+        encoded_sentence_embedding = Dropout(rate=0.5)(encoded_sentence_embedding)
 
-        inputs = keras.layers.concatenate([sentence_embedding, entity_embedding])
+        x = Concatenate()([encoded_sentence_embedding, self_attention_embedding])
 
-        sentence_embedding = Bidirectional(GRU(200,
-                                               activation="relu",
-                                               return_sequences=True,
-                                               recurrent_dropout=0.3,
-                                               dropout=0.3))(inputs)
-
-        x = TimeDistributed(Dense(200, activation='tanh'))(sentence_embedding)
-        # x = Dropout(rate=0.3)(x)
         predictions = TimeDistributed(Dense(self.class_num, activation='softmax'))(x)
 
-        self.model = Model(inputs=[sentences, entity_types], outputs=predictions)
-        self.model.compile(loss=['categorical_crossentropy'], optimizer='rmsprop', metrics=['accuracy'])
-
-        return self.model
+        return predictions
 
     def train_model(self, max_epoch=30):
 
         e1 = Evaluator(true_labels=self.test_labels, sentences=self.test_word_inputs, index_ids=self.index_ids)
-        e2 = Evaluator(true_labels=self.dev_labels, sentences=self.dev_word_inputs, index_ids=self.index_ids)
+        # e2 = Evaluator(true_labels=self.dev_labels, sentences=self.dev_word_inputs, index_ids=self.index_ids)
 
         for i in range(max_epoch):
             print("====== epoch " + str(i + 1) + " ======")
@@ -63,18 +44,18 @@ class SelfAttentionModel(BaseModel):
                            self.train_labels,
                            epochs=1,
                            batch_size=32,
-                           validation_data=([self.dev_word_inputs,
-                                             self.dev_entity_inputs], self.dev_labels),
+                           # validation_data=([self.dev_word_inputs,
+                           #                   self.dev_entity_inputs], self.dev_labels),
                            verbose=2)
 
-            print("# -- develop set --- #")
-            results = self.model.predict({'sentence_input': self.dev_word_inputs,
-                                          'entity_type_input': self.dev_entity_inputs},
-                                         batch_size=64,
-                                         verbose=0)
-            results = e2.get_true_label(label=results)
-            results = e2.process_bie(sen_label=results)
-            e2.get_true_prf(results, epoch=i + 1)
+            # print("# -- develop set --- #")
+            # results = self.model.predict({'sentence_input': self.dev_word_inputs,
+            #                               'entity_type_input': self.dev_entity_inputs},
+            #                              batch_size=64,
+            #                              verbose=0)
+            # results = e2.get_true_label(label=results)
+            # results = e2.process_bie(sen_label=results)
+            # e2.get_true_prf(results, epoch=i + 1)
 
             print("# -- test set --- #")
             results = self.model.predict({'sentence_input': self.test_word_inputs,
@@ -91,5 +72,5 @@ if __name__ == '__main__':
 
     s = SelfAttentionModel(max_len=125, class_num=73)
     for i in range(5):
-        s.build_model()
+        s.compile_model()
         s.train_model()
