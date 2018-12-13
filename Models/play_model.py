@@ -1,9 +1,7 @@
 from Models.BaseModel import BaseModel
 from lib.Evaluator import Evaluator
 import keras
-from keras.layers import Input, Embedding, Bidirectional, GRU, TimeDistributed, Dense, Dropout, Lambda
-from keras.models import Model
-from Models.util import *
+from keras.layers import Bidirectional, GRU, TimeDistributed, Dense, Dropout
 
 
 class SelfAttentionModel(BaseModel):
@@ -22,6 +20,7 @@ class SelfAttentionModel(BaseModel):
         encoded_sentence_embedding = Bidirectional(GRU(200,
                                                        activation="relu",
                                                        return_sequences=True,
+                                                       recurrent_dropout=0.3,
                                                        dropout=0.3))(inputs)
         encoded_sentence_embedding = Dropout(rate=0.5)(encoded_sentence_embedding)
 
@@ -70,4 +69,4 @@ if __name__ == '__main__':
     s = SelfAttentionModel(max_len=125, class_num=73)
     for i in range(5):
         s.compile_model()
-        s.train_model()
+        s.train_model(max_epoch=45)
