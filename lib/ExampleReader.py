@@ -1,6 +1,7 @@
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import pickle
+import os
 
 
 class ExampleReader(object):
@@ -337,10 +338,26 @@ class ExampleReader(object):
         rf.close()
         return duplicated_dict
 
+    def each_file(self, file_path=""):
+        """
+        Get the doc ids of development set files.
+        :param file_path: the dir of the raw development files.
+        :return:
+        """
+        file_list = os.listdir(file_path)
+        doc_ids = []
+        for file in file_list:
+            if ".a1" in file:
+                doc_ids.append(file.split(".")[0])
+        wf = open(self.dir + "../example/development_doc_ids.pk", 'wb')
+        pickle.dump(doc_ids, wf)
+        wf.close()
+        return doc_ids
+
 
 if __name__ == '__main__':
     e = ExampleReader(max_len=125, train=True)
-
+    e.each_file("../resource/MLEE-1.0.2-rev1/standoff/development/test")
     tri_ids_file = "tri_ids.txt"
     tri_class_id, tri_index_ids = e.read_ids(tri_ids_file)
 
