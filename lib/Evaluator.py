@@ -155,7 +155,7 @@ class Evaluator(object):
         if f1 > self.max_F1:
             self.max_F1 = f1
             self.max_F1_epoch = epoch
-            wf = open(self.output_dir + str(epoch) + "_" + str(f1 * 100) + ".txt", 'w', encoding='utf-8')
+            wf = open(self.output_dir + str(f1 * 100) + "_" + str(epoch) + ".txt", 'w', encoding='utf-8')
             for i in range(len(sen_label)):
                 for j in range(len(sen_label[i])):
                     wf.write(sen_label[i][j] + " ")
