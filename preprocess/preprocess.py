@@ -2,6 +2,7 @@ try:
     import xml.etree.cElementTree as ET
 except ImportError:
     import xml.etree.ElementTree as ET
+import pickle
 
 
 class PreProcessor(object):
@@ -62,8 +63,12 @@ class PreProcessor(object):
         count_duplicated = 0
         wf7 = open(output_file + 'duplicated.txt', 'w', encoding='utf-8')
 
+        sen_doc_ids = []    # the doc id of each sentence.
+
         for document in root:
+            doc_id = document.get("origId")
             for sentence in document:
+                sen_doc_ids.append(doc_id[:])
                 line = ""   # used for appending tokens.
                 entities = sentence.findall("entity")
                 # ============ tri info===============
@@ -249,6 +254,10 @@ class PreProcessor(object):
 
         print("longest sentence has " + str(max_len) + " words.")   # 125
 
+        wf = open(output_file + "sen_doc_ids.pk", 'wb')
+        pickle.dump(sen_doc_ids, wf)
+        wf.close()
+
     def sort_offset(self, tri_offsets=[], tri_types=[], tri_ids=[]):
         temp = []
         for i in range(len(tri_offsets)):
@@ -344,4 +353,3 @@ if __name__ == '__main__':
     p.read_file(xml=test_file, train=False)
 
     p.write_ids()
-
