@@ -1,6 +1,13 @@
 class Evaluator(object):
 
-    def __init__(self, true_labels=None, sentences=None, index_ids={}):
+    def __init__(self, true_labels=None, sentences=None, index_ids={}, val=True, patience=3):
+        """
+        :param true_labels: the true labels of the data set(development or test).
+        :param sentences: the input sentences of the data set.
+        :param index_ids:
+        :param val: whether the data set is the development set.
+        :param patience: as you know -_-|| early stopping.
+        """
         self.max_F1 = -1
         self.max_F1_epoch = -1
 
@@ -10,6 +17,13 @@ class Evaluator(object):
         self.true_labels = self.get_true_label(true_labels)
 
         self.output_dir = "../results/F_"
+
+        # -------------- early stopping --------------
+        self.val = val
+        self.patience = patience
+        self.selected_F1 = -1
+        self.last_F1 = -1
+        self.last_epoch = -1
 
     # convert 01 to BIO
     def get_true_label(self, label=None):
@@ -163,7 +177,17 @@ class Evaluator(object):
             wf.close()
 
         if epoch % 5 == 0:
-            print("max F1 achieved at epoch: " + str(self.max_F1_epoch))
-            print("max F1 score is: " + str(self.max_F1))
+            print("max F1 achieved at epoch: {}".format(self.max_F1_epoch))
+            print("max F1 score is: {}".format(self.max_F1))
+            if self.val:
+                print("The selected epoch is {}".format(self.last_epoch))
+
+        if self.val:
+            if f1 > self.last_F1:
+                self.last_F1 = f1
+                self.last_epoch = epoch
+            elif epoch - self.last_epoch >= self.patience:
+                print("Early stop and the selected epoch is {}".format(self.last_epoch))
+                return -1, -1, -1
 
         return f1, p1, r1
