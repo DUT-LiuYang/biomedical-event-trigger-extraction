@@ -2,7 +2,7 @@ import pickle
 
 from keras.engine import Model
 from keras.layers import Embedding, Input
-from sklearn.model_selection import train_test_split
+import numpy as np
 
 
 class BaseModel:
@@ -30,10 +30,13 @@ class BaseModel:
         self.ENTITY_TYPE_VEC_DIM = 50
 
         # inputs to the model
+        self.use_development_set = True
         self.train_word_inputs, self.train_entity_inputs, self.train_labels, self.train_attention_labels = self.load_data(train=True)
         self.test_word_inputs, self.test_entity_inputs, self.test_labels, self.test_attention_labels = self.load_data(train=False)
-        self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels = [None, None, None]
-        # self.split_train_set(rate=0.06)
+        self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels, self.dev_attention_labels = [None, None, None, None]
+        # if you want to use development, this part can help you to split the development set from the train set.
+        if self.use_development_set:
+            self.split_train_set()
 
         # dict used to calculate the F1
         self.index_ids = BaseModel.load_pickle(self.dir + self.index_ids_file)
@@ -85,17 +88,31 @@ class BaseModel:
         rf.close()
         return embedding_matrix
 
-    def split_train_set(self, rate=0.2):
-        self.train_word_inputs, \
-        self.dev_word_inputs, \
-        self.train_entity_inputs, \
-        self.dev_entity_inputs, \
-        self.train_labels, \
-        self.dev_labels = train_test_split(self.train_word_inputs,
-                                           self.train_entity_inputs,
-                                           self.train_labels,
-                                           test_size=rate,
-                                           random_state=0)
+    def split_train_set(self):
+        develop_doc_ids = self.load_pickle(self.dir + "development_doc_ids.pk")
+        sen_doc_ids = self.load_pickle(self.dir + "train_sen_doc_ids.pk")
+
+        train_index = []
+        develop_index = []
+
+        for index, doc_id in enumerate(sen_doc_ids):
+            if doc_id in develop_doc_ids:
+                develop_index.append(index)
+            else:
+                train_index.append(index)
+
+        self.dev_word_inputs = self.train_word_inputs[develop_index]
+        self.dev_entity_inputs = self.train_entity_inputs[develop_index]
+        self.dev_labels = self.train_labels[develop_index]
+        self.dev_attention_labels = self.train_attention_labels[develop_index]
+
+        self.train_word_inputs = self.train_word_inputs[train_index]
+        self.train_entity_inputs = self.train_entity_inputs[train_index]
+        self.train_labels = self.train_labels[train_index]
+        self.train_attention_labels = self.train_attention_labels[train_index]
+
+        print(np.shape(self.train_word_inputs))
+        print(np.shape(self.dev_word_inputs))
 
     def compile_model(self):
         self.sen_input, self.entity_type_input = self.make_input()
