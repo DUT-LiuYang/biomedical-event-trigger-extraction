@@ -12,6 +12,7 @@ class SelfAttentionModel(BaseModel):
 
         self.max_len = max_len
         self.class_num = class_num
+        self.name = "baseline"
 
     def build_model(self):
 
@@ -31,8 +32,8 @@ class SelfAttentionModel(BaseModel):
     def train_model(self, max_epoch=30):
 
         e1 = Evaluator(true_labels=self.test_labels, sentences=self.test_word_inputs, index_ids=self.index_ids)
-        # e2 = Evaluator(true_labels=self.dev_labels, sentences=self.dev_word_inputs, index_ids=self.index_ids)
-
+        e2 = Evaluator(true_labels=self.dev_labels, sentences=self.dev_word_inputs, index_ids=self.index_ids)
+        log = open("../log/" + self.name + ".txt", 'w', encoding='utf-8')
         for i in range(max_epoch):
             print("====== epoch " + str(i + 1) + " ======")
             self.model.fit({'sentence_input': self.train_word_inputs,
@@ -40,18 +41,20 @@ class SelfAttentionModel(BaseModel):
                            self.train_labels,
                            epochs=1,
                            batch_size=32,
-                           # validation_data=([self.dev_word_inputs,
-                           #                   self.dev_entity_inputs], self.dev_labels),
+                           validation_data=([self.dev_word_inputs,
+                                             self.dev_entity_inputs], self.dev_labels),
                            verbose=2)
 
-            # print("# -- develop set --- #")
-            # results = self.model.predict({'sentence_input': self.dev_word_inputs,
-            #                               'entity_type_input': self.dev_entity_inputs},
-            #                              batch_size=64,
-            #                              verbose=0)
-            # results = e2.get_true_label(label=results)
-            # results = e2.process_bie(sen_label=results)
-            # e2.get_true_prf(results, epoch=i + 1)
+            print("# -- develop set --- #")
+            results = self.model.predict({'sentence_input': self.dev_word_inputs,
+                                          'entity_type_input': self.dev_entity_inputs},
+                                         batch_size=64,
+                                         verbose=0)
+            results = e2.get_true_label(label=results)
+            results = e2.process_bie(sen_label=results)
+            f1, _, _ = e2.get_true_prf(results, epoch=i + 1)
+            if f1 < 0:
+                break
 
             print("# -- test set --- #")
             results = self.model.predict({'sentence_input': self.test_word_inputs,
@@ -61,7 +64,9 @@ class SelfAttentionModel(BaseModel):
 
             results = e1.get_true_label(label=results)
             results = e1.process_bie(sen_label=results)
-            e1.get_true_prf(results, epoch=i + 1)
+            f1, p1, r1 = e1.get_true_prf(results, epoch=i + 1)
+            log.write("epoch:{} p:{} r:{} f:{}\n".format(i + 1, p1, r1, f1))
+        log.close()
 
 
 if __name__ == '__main__':
