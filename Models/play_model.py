@@ -31,7 +31,7 @@ class SelfAttentionModel(BaseModel):
 
     def train_model(self, max_epoch=30):
 
-        e1 = Evaluator(true_labels=self.test_labels, sentences=self.test_word_inputs, index_ids=self.index_ids)
+        e1 = Evaluator(true_labels=self.test_labels, sentences=self.test_word_inputs, index_ids=self.index_ids, val=False)
         e2 = Evaluator(true_labels=self.dev_labels, sentences=self.dev_word_inputs, index_ids=self.index_ids)
         log = open("../log/" + self.name + ".txt", 'w', encoding='utf-8')
         for i in range(max_epoch):
