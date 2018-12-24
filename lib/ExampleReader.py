@@ -191,7 +191,7 @@ class ExampleReader(object):
             entity_id_label = entity_id_label.strip().split()
 
             # get the num of the entities and triggers in the current sentence.
-            tri_attention_label, num1 = self.get_average_attention(tri_id_label, entity_ids[i])
+            tri_attention_label, num1 = self.get_average_attention(tri_id_label, tri_ids[i])
             entity_attention_label, num2 = self.get_average_attention(entity_id_label, entity_ids[i])
             num = num1 + num2
             if num == 0:
