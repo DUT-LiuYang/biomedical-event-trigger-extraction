@@ -7,7 +7,7 @@ import numpy as np
 
 class BaseModel:
 
-    def __init__(self):
+    def __init__(self, use_development_set=True):
 
         # used dirs
         self.save_dir = "../saved_models/"
@@ -30,7 +30,7 @@ class BaseModel:
         self.ENTITY_TYPE_VEC_DIM = 50
 
         # inputs to the model
-        self.use_development_set = True
+        self.use_development_set = use_development_set
         self.train_word_inputs, self.train_entity_inputs, self.train_labels, self.train_attention_labels = self.load_data(train=True)
         self.test_word_inputs, self.test_entity_inputs, self.test_labels, self.test_attention_labels = self.load_data(train=False)
         self.dev_word_inputs, self.dev_entity_inputs, self.dev_labels, self.dev_attention_labels = [None, None, None, None]
