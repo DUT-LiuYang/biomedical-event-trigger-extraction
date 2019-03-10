@@ -2,10 +2,7 @@
 > Some models for biomedical event trigger extraction by Liu Yang (DUT NLP Lab).
 
 ## 项目介绍
-本项目是基于论文 "Exploiting Argument Information to Improve
-Biomedical Event Trigger Identification via Recurrent
-Neural Networks and Supervised Attention
-Mechanisms" 的代码重构与创新，完成后将在MLEE以及BioNLP的语料上进行实验。
+本项目是DUTNLP生物事件抽取相关代码重构与创新，完成后将在MLEE以及BioNLP的语料上进行实验。
 
 ## 观点
 当前生物医学事件论文的一些常见问题：
